@@ -37,9 +37,11 @@ describe("ContratoInmobiliarioETH - Realizar Pago Mensual", function () {
           const balanceContratoAntes = await ethers.provider.getBalance(contratoInmobiliarioETH.target);
           await contratoInmobiliarioETH.connect(comprador).realizarPagoMensual({ value: montoMensual });
           const balanceContratoDespues =await ethers.provider.getBalance(contratoInmobiliarioETH.target);
-          const pagosAcumulados = await contratoInmobiliarioETH.pagosAcumulados();
+          const cantidadPagosRealizados = await contratoInmobiliarioETH.cantidadPagosRealizados();
+
           expect(balanceContratoDespues).to.equal(balanceContratoAntes + montoMensual);
-          expect(pagosAcumulados).to.equal(montoMensual);
+          expect(cantidadPagosRealizados).to.equal(1);
+
       });
   
       it("Debe revertir si el contrato está inactivo", async function () {

@@ -5,7 +5,7 @@ async function main() {
   const [deployer] = await ethers.getSigners();
 
   // Despliega el contrato
-  const contratoInmobiliarioETH = await ethers.deployContract("Factory");
+  const contratoInmobiliarioETH = await ethers.deployContract("ContratoInmobiliarioFactory");
 
   await contratoInmobiliarioETH.waitForDeployment();
 

@@ -14,12 +14,12 @@ abstract contract ContratoInmobiliario {
     address public comprador;               // Billetera comprador
     uint256 public depositoColateral;       // Valor colateral
     uint256 public montoMensual;            // Valor a pagar por mes
-    uint256 public cantidadPagosRestantes;  // Cantidad de veces que debe pagar
-    uint256 public plazoPagoDias;               // timepo en dias entre pagos (hardcodeado a 30)
-    uint256 public plazoPago;               // timepo en dias entre pagos (hardcodeado a 30)
+    uint256 public cantidadPagosTotales;  // Cantidad de veces que debe pagar
+    uint256 public cantidadPagosRealizados;
+    uint256 public cantidadPagosAReclamar;
+    uint256 public plazoPagoDias;           // timepo en dias entre pagos (hardcodeado a 30)
     uint256 public fechaUltimoPago;         // Fecha en la que se hizo el ultimo pago
-    uint256 public pagosAcumulados;         // Colateral depositado en el contrato
-    bool public contratoActivo;             // Esta activo el contrato
+   bool public contratoActivo;             // Esta activo el contrato
     bool public compradorIncumplio;         // El comprador intento retirar su dinero mensual y no estuvo (le da derecho a retirar el colateral)
     bool public locked;                    // Se puede interactuar con el contrato
     bool public colateralFueDepositado = false;
@@ -27,11 +27,25 @@ abstract contract ContratoInmobiliario {
     bool public intermediarioActivo;
     address public factory;
 
+    struct ContractData {
+        address comprador;
+        address vendedor;
+        uint256 depositoColateral;
+        uint256 montoMensual;
+        uint256 cantidadPagosTotales;        
+        uint256 plazoPagoDias;
+        uint256 fechaUltimoPago;
+        bool contratoActivo;
+        bool compradorIncumplio;
+        bool intermediarioActivo;
+    }
+
     event PagoMensualRealizado(address indexed pagador, uint256 monto);
     event ColateralReclamadoIncumplimiento(address indexed reclamante, uint256 monto);
     event ColateralReclamado(address indexed reclamante, uint256 monto);
     event ColateralDepositado(address indexed pagador, uint256 monto);
     event CompradorIncumplido();
+
 
     constructor(
         address _comprador,
@@ -46,14 +60,14 @@ abstract contract ContratoInmobiliario {
         comprador = _comprador;
         depositoColateral = _depositoColateral;
         montoMensual = _montoMensual;
-        cantidadPagosRestantes = _cantidadPagos;
+        cantidadPagosTotales = _cantidadPagos;
+        cantidadPagosAReclamar = cantidadPagosTotales;
+        cantidadPagosRealizados = 0;
         plazoPagoDias = _plazoPagoDias;
-        plazoPago = _plazoPagoDias;
         fechaUltimoPago = block.timestamp;
         contratoActivo = true;
         compradorIncumplio = false;
         locked = false;
-        pagosAcumulados = 0;
         intermediarioActivo = _intermediarioActivo;
         factory = msg.sender;
     }
@@ -90,12 +104,33 @@ abstract contract ContratoInmobiliario {
         _;
     }
 
-    function aplazarVencimiento() external virtual soloFactory    {
+    function aplazarVencimiento() public virtual soloFactory    {
         fechaUltimoPago = block.timestamp;
     }
 
     function desactivarContrato() external soloFactory{
         contratoActivo = false;
+    }
+
+    function reactivarContrato() external soloFactory{
+        contratoActivo = true;
+        compradorIncumplio = false;
+        aplazarVencimiento();
+    }
+
+    function getContractData() external view returns (ContractData memory) {
+        return ContractData({
+            comprador: comprador,
+            vendedor: vendedor,
+            depositoColateral: depositoColateral,
+            montoMensual: montoMensual,
+            cantidadPagosTotales: cantidadPagosTotales,
+            plazoPagoDias: plazoPagoDias,
+            fechaUltimoPago: fechaUltimoPago,
+            contratoActivo: contratoActivo,
+            compradorIncumplio: compradorIncumplio,
+            intermediarioActivo: intermediarioActivo
+        });
     }
 
     function reclamarPagoMensual() external soloVendedor virtual contratoActivoNoIncumplido noReentrancy colateralDepositado {}

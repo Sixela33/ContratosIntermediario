@@ -51,7 +51,7 @@ contract ContratoInmobiliarioERC20 is ContratoInmobiliario {
 
     function reclamarPagoMensual() external override soloVendedor contratoActivoNoIncumplido noReentrancy{
         require(block.timestamp - fechaUltimoPago >= 30 days, "Debe pasar al menos un mes entre pagos");
-        require(cantidadPagosRestantes > 0, "Ya se relizaron todos los pagos"); 
+        require(cantidadPagosTotales > 0, "Ya se relizaron todos los pagos"); 
 
         uint256 balanceMinimo = montoMensual + depositoColateral;
 
@@ -60,9 +60,9 @@ contract ContratoInmobiliarioERC20 is ContratoInmobiliario {
             contratoActivo = false;
         } else {
             transferirTokens(vendedor, montoMensual);
-            cantidadPagosRestantes -= 1;
+            cantidadPagosTotales -= 1;
             fechaUltimoPago = block.timestamp;
-            pagosAcumulados -= montoMensual;
+            cantidadPagosTotales -= montoMensual;
             emit PagoMensualRealizado(msg.sender, montoMensual);
         }
     }
@@ -71,25 +71,25 @@ contract ContratoInmobiliarioERC20 is ContratoInmobiliario {
     function reclamarColateralIncumplimiento() external override soloVendedor noReentrancy {
         require (compradorIncumplio, "El comprador debe atrasarse en los pagos para realizar esta accion");
         contratoActivo = false;
-        pagosAcumulados = 0;
+        cantidadPagosTotales = 0;
         transferirTokens(vendedor, saldoTokens);
         emit ColateralReclamadoIncumplimiento(msg.sender, saldoTokens);
     }
 
     // El comprador reclama el colateral despues de haber hecho todos sus pagos
     function reclamarColateral() external override soloComprador noReentrancy {
-        require (!compradorIncumplio && cantidadPagosRestantes <=0, "El comprador debe atrasarse en los pagos para realizar esta accion");
+        require (!compradorIncumplio && cantidadPagosTotales <=0, "El comprador debe realizar todos para realizar esta accion");
         contratoActivo = false;
-        pagosAcumulados = 0;
+        cantidadPagosTotales = 0;
         transferirTokens(comprador, saldoTokens);
         emit ColateralReclamado(msg.sender, saldoTokens);
     }
 
     function depositarColateral(uint256 amount) external soloComprador {
         require(amount == depositoColateral, "Monto Erroneo");
-        emit ColateralDepositado(msg.sender, amount);
         contratoActivo = true;
         this.depositarTokens(amount);
+        emit ColateralDepositado(msg.sender, amount);
     }
 }
 

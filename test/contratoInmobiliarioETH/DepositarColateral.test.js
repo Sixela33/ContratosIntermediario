@@ -42,11 +42,12 @@ describe("Funciones del contrato pre colateral", function () {
         });
     
         it("Debe revertir si el colateral ya fue depositado previamente", async function () {
-    
+          
             await contratoInmobiliarioETH.connect(comprador).depositarColateral({ value: depositoColateral });
     
             await expect(contratoInmobiliarioETH.connect(comprador).depositarColateral({ value: depositoColateral }))
             .to.be.revertedWith("El colateral ya fue depositado");
+     
         });
     
         it("Debe revertir si el monto depositado es incorrecto", async function () {

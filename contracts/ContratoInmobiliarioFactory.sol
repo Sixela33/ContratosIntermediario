@@ -19,6 +19,11 @@ contract ContratoInmobiliarioFactory {
         address[] comprador;
     }
 
+    struct ContractDataxTipo {
+        ContratoInmobiliario.ContractData[] vendedor;
+        ContratoInmobiliario.ContractData[] comprador;
+    }
+
     event NuevoContratoCreado(address indexed direccionContrato);
 
     function crearContratoETH(
@@ -28,6 +33,7 @@ contract ContratoInmobiliarioFactory {
         uint256 _cantidadPagos,
         uint256 _plazoPagoDias,
         bool _intermediarioActivo
+        
     ) external {
 
         address vendedor = msg.sender;
@@ -48,10 +54,35 @@ contract ContratoInmobiliarioFactory {
         emit NuevoContratoCreado(address(nuevoContrato));
     }
 
-    function obtenerContratosXDireccion(address direccion) external view returns (ContratosYCompradores memory) {
+    function obtenerContratosXDireccion(address direccion) public view returns (ContratosYCompradores memory) {
         return ContratosYCompradores({
             vendedor: vendedorXContratos[direccion],
             comprador: compradorXContratos[direccion]
         });
     }
+
+    function obtenerDatosDeCOntratos(address direccion) external view returns (ContractDataxTipo memory) {
+        ContratosYCompradores memory contratos = obtenerContratosXDireccion(direccion);
+        ContractDataxTipo memory res;
+
+        ContratoInmobiliario.ContractData[] memory datosVendedor = new ContratoInmobiliario.ContractData[](contratos.vendedor.length);
+        ContratoInmobiliario.ContractData[] memory datosComprador = new ContratoInmobiliario.ContractData[](contratos.comprador.length);
+
+        for (uint256 i = 0; i < contratos.vendedor.length; i++) { 
+            ContratoInmobiliario contratoVendedor = ContratoInmobiliario(contratos.vendedor[i]);
+            datosVendedor[i] = contratoVendedor.getContractData();
+        }
+
+        for (uint256 i = 0; i < contratos.comprador.length; i++) { 
+            ContratoInmobiliario contratoComprador = ContratoInmobiliario(contratos.comprador[i]);
+            datosComprador[i] = contratoComprador.getContractData();
+        }
+
+        res.vendedor = datosVendedor;
+        res.comprador = datosComprador;
+
+        return res;
+    }
+
+
 }

@@ -81,4 +81,42 @@ describe("Funciones del contrato base", function () {
         expect(contratosCreadosComprador[1].length).to.equal(contratosVendedor, "")
 
     })
+    
+    it("debe devolver toda la informacion de los contratos del usuario", async function () {
+        const contratosVendedor = 3
+        const contratosComprador = 10
+
+        for (let i = 0; i < contratosVendedor; i++) {
+            await ContratoFactory.connect(vendedor).crearContratoETH(
+                comprador.address,
+                depositoColateral,
+                montoMensual,
+                cantidadPagos,
+                plazoPagoDias,
+                intermediarioActivo
+                )
+        }
+
+        const contratosCreadosVendedor = await ContratoFactory.obtenerContratosXDireccion(vendedor);
+        expect(contratosCreadosVendedor[0].length).to.equal(contratosVendedor, "")
+
+        for (let i = 0; i < contratosComprador; i++) {
+            await ContratoFactory.connect(comprador).crearContratoETH(
+                vendedor.address,
+                depositoColateral,
+                montoMensual,
+                cantidadPagos,
+                plazoPagoDias,
+                intermediarioActivo
+            )
+        }
+        const contratosCreadosComprador = await ContratoFactory.obtenerContratosXDireccion(comprador);
+        // console.log(contratosCreadosComprador)
+        const res = await ContratoFactory.obtenerDatosDeCOntratos(comprador);
+        // console.log(JSON.stringify(res))
+
+        expect(res[0].length).to.equal(contratosComprador, "")
+        expect(res[1].length).to.equal(contratosVendedor, "")
+
+    })
 })

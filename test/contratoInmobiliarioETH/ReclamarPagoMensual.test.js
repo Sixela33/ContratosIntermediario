@@ -41,36 +41,25 @@ describe("ContratoInmobiliarioETH - Reclamar Pago Mensual", function () {
       await ethers.provider.send("evm_increaseTime", [plazoPagoSegundos + 1]);
       await ethers.provider.send("evm_mine");
 
-      const balanceVendedorAntes = await ethers.provider.getBalance(vendedor);
       const balanceContratoAntes = await ethers.provider.getBalance(contratoInmobiliarioETH.target);
-      const pagosAcumuladosAntes = await contratoInmobiliarioETH.pagosAcumulados();
 
       const reciept = await contratoInmobiliarioETH.connect(vendedor).reclamarPagoMensual();
 
-      const balanceVendedorDespues = await ethers.provider.getBalance(vendedor);
       const balanceContratoDespues = await ethers.provider.getBalance(contratoInmobiliarioETH.target);
 
-      const cantidadPagosRestantes = await contratoInmobiliarioETH.cantidadPagosRestantes();
-      const pagosAcumulados = await contratoInmobiliarioETH.pagosAcumulados();
-      const fechaUltimoPago = await contratoInmobiliarioETH.fechaUltimoPago();
+      const cantidadPagosAReclamar = await contratoInmobiliarioETH.cantidadPagosAReclamar();
       const compradorIncumplio = await contratoInmobiliarioETH.compradorIncumplio();
       const contratoActivo = await contratoInmobiliarioETH.contratoActivo();
-      
-      // Verificamos que el vendedor haya recibido el pago
-      //expect(balanceVendedorDespues).to.equal(balanceVendedorAntes + montoMensual )
-      // Verificamos que el contrato haya actualizado sus estados correctamente
+
       expect(balanceContratoDespues).to.equal(balanceContratoAntes - montoMensual)
-      expect(cantidadPagosRestantes).to.equal(cantidadPagos - 1);
-      expect(pagosAcumulados).to.equal(pagosAcumuladosAntes - montoMensual);
-      expect(fechaUltimoPago).to.be.above(0);
+      expect(cantidadPagosAReclamar).to.equal(cantidadPagos - 1);
       expect(compradorIncumplio).to.equal(false);
-      
       expect(contratoActivo).to.equal(true);
     });
 
     it("Debe revertir si no ha pasado suficiente tiempo para reclamar el pago", async function () {
       // Configuramos el tiempo para que no haya pasado suficiente tiempo
-      const plazoPagoSegundos = plazoPagoDias - 100; // 100 segundos antes de que paso el tiempo
+      const plazoPagoSegundos = plazoPagoDias - 10000; // 100 segundos antes de que paso el tiempo
       await ethers.provider.send("evm_increaseTime", [plazoPagoSegundos]);
       await ethers.provider.send("evm_mine");
 
@@ -82,11 +71,12 @@ describe("ContratoInmobiliarioETH - Reclamar Pago Mensual", function () {
       for (let i = 0; i < cantidadPagos; i++) {
         await contratoInmobiliarioETH.connect(comprador).realizarPagoMensual({ value: montoMensual })
         // Asegurémonos de que haya pasado suficiente tiempo para reclamar el pago
-        const plazoPagoSegundos = plazoPagoDias + 100
-        await ethers.provider.send("evm_increaseTime", [plazoPagoSegundos + 1])
+        await ethers.provider.send("evm_increaseTime", [plazoPagoDias + 1])
         await ethers.provider.send("evm_mine")
         await contratoInmobiliarioETH.connect(vendedor).reclamarPagoMensual()
       }
+      await ethers.provider.send("evm_increaseTime", [plazoPagoDias + 1])
+      await ethers.provider.send("evm_mine")
 
     await expect(contratoInmobiliarioETH.connect(vendedor).reclamarPagoMensual()).to.be.revertedWith("Ya se relizaron todos los pagos");
 

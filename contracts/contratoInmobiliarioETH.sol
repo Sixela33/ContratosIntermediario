@@ -31,9 +31,10 @@ contract ContratoInmobiliarioETH is ContratoInmobiliario {
     ) {
 
     }
+    
     function reclamarPagoMensual() external override soloVendedor contratoActivoNoIncumplido noReentrancy colateralDepositado {
-        require(block.timestamp - fechaUltimoPago >= plazoPago || cantidadPagosRestantes == 0, "Todavia no puede reclamar su pago");
-        require(cantidadPagosRestantes > 0, "Ya se relizaron todos los pagos"); 
+        require(block.timestamp - fechaUltimoPago >= plazoPagoDias || cantidadPagosTotales == 0, "Todavia no puede reclamar su pago");
+        require(cantidadPagosAReclamar > 0, "Ya se relizaron todos los pagos"); 
 
         uint256 balanceMinimo = montoMensual + depositoColateral;
 
@@ -42,8 +43,7 @@ contract ContratoInmobiliarioETH is ContratoInmobiliario {
             contratoActivo = false;
             emit CompradorIncumplido();
         } else {
-            cantidadPagosRestantes -= 1;
-            pagosAcumulados -= montoMensual;
+            cantidadPagosAReclamar -= 1;
             fechaUltimoPago = block.timestamp;
             payable(vendedor).transfer(montoMensual);
             emit PagoMensualRealizado(msg.sender, montoMensual);
@@ -53,17 +53,15 @@ contract ContratoInmobiliarioETH is ContratoInmobiliario {
     function reclamarColateralIncumplimiento() external override soloVendedor noReentrancy colateralDepositado {
         require (compradorIncumplio, "El comprador debe atrasarse en los pagos para realizar esta accion");
         contratoActivo = false;
-        pagosAcumulados = 0;
         payable(vendedor).transfer(address(this).balance);
         emit ColateralReclamadoIncumplimiento(msg.sender, address(this).balance);
     }
 
     function reclamarColateral() external override soloComprador noReentrancy colateralDepositado{
         require (!compradorIncumplio , "En comprador se ha retrazado en los pagos");
-        require(cantidadPagosRestantes <= 0, "Todavia quedan pagos pendientes");
+        require(cantidadPagosTotales == cantidadPagosRealizados, "Todavia quedan pagos pendientes");
 
         contratoActivo = false;
-        pagosAcumulados = 0;
         payable(vendedor).transfer(address(this).balance);
         emit ColateralReclamado(msg.sender, address(this).balance);
     }
@@ -79,6 +77,7 @@ contract ContratoInmobiliarioETH is ContratoInmobiliario {
     function realizarPagoMensual() external override payable soloComprador colateralDepositado{
         require(contratoActivo, "El contrato esta inactivo");
         require(msg.value == montoMensual, "Monto de transaccion invaldio");
-        pagosAcumulados += msg.value;
+        require(cantidadPagosTotales != cantidadPagosRealizados, "Ya has realizado todos los pagos");
+        cantidadPagosRealizados+=1;
     }
 }

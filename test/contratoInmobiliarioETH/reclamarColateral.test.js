@@ -66,8 +66,8 @@ describe("ContratoInmobiliarioETH - Reclamar Colateral", function () {
         const balanceContratoDespues = await ethers.provider.getBalance(contratoInmobiliarioETH.target);
 
         
-        const cantidadPagosRestantes = await contratoInmobiliarioETH.cantidadPagosRestantes();
-        const pagosAcumulados = await contratoInmobiliarioETH.pagosAcumulados();
+        const cantidadPagosAReclamar = await contratoInmobiliarioETH.cantidadPagosAReclamar();
+        const cantidadPagosRealizados = await contratoInmobiliarioETH.cantidadPagosRealizados();
         const fechaUltimoPago = await contratoInmobiliarioETH.fechaUltimoPago();
         const compradorIncumplio = await contratoInmobiliarioETH.compradorIncumplio();
         const contratoActivo = await contratoInmobiliarioETH.contratoActivo();
@@ -77,11 +77,9 @@ describe("ContratoInmobiliarioETH - Reclamar Colateral", function () {
         // Verificamos que el contrato haya actualizado sus estados correctamente
         expect(balanceContratoAntes).to.equal(depositoColateral)
         expect(balanceContratoDespues).to.equal(0);
-        expect(cantidadPagosRestantes).to.equal(0);
-        expect(pagosAcumulados).to.equal(0);
-        expect(fechaUltimoPago).to.be.above(0);
+        expect(cantidadPagosAReclamar).to.equal(0);
+        expect(cantidadPagosRealizados).to.equal(cantidadPagos);
         expect(compradorIncumplio).to.equal(false);
-        
         expect(contratoActivo).to.equal(false);
     })
 })

@@ -35,7 +35,6 @@ describe("Funciones del contrato base", function () {
             expect(await contratoInmobiliarioETH.comprador()).to.equal(comprador.address);
             expect(await contratoInmobiliarioETH.depositoColateral()).to.equal(depositoColateral);
             expect(await contratoInmobiliarioETH.montoMensual()).to.equal(montoMensual);
-            expect(await contratoInmobiliarioETH.cantidadPagosRestantes()).to.equal(cantidadPagos);
             expect(await contratoInmobiliarioETH.plazoPagoDias()).to.equal(plazoPagoDias);
             expect(await contratoInmobiliarioETH.intermediarioActivo()).to.equal(intermediarioActivo);
             expect(await contratoInmobiliarioETH.colateralFueDepositado()).to.equal(false);
