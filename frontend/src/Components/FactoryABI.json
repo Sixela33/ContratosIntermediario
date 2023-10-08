@@ -1,0 +1,241 @@
+{
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "direccionContrato",
+          "type": "address"
+        }
+      ],
+      "name": "NuevoContratoCreado",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_comprador",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_depositoColateral",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_montoMensual",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_cantidadPagos",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_plazoPagoDias",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "_intermediarioActivo",
+          "type": "bool"
+        }
+      ],
+      "name": "crearContratoETH",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "direccion",
+          "type": "address"
+        }
+      ],
+      "name": "obtenerContratosXDireccion",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address[]",
+              "name": "vendedor",
+              "type": "address[]"
+            },
+            {
+              "internalType": "address[]",
+              "name": "comprador",
+              "type": "address[]"
+            }
+          ],
+          "internalType": "struct ContratoInmobiliarioFactory.ContratosYCompradores",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "direccion",
+          "type": "address"
+        }
+      ],
+      "name": "obtenerDatosDeCOntratos",
+      "outputs": [
+        {
+          "components": [
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "comprador",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "vendedor",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "direccion",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "depositoColateral",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "montoMensual",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "cantidadPagosTotales",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "plazoPagoDias",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "fechaUltimoPago",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "contratoActivo",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "compradorIncumplio",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "intermediarioActivo",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "address",
+                  "name": "tokenAddress",
+                  "type": "address"
+                }
+              ],
+              "internalType": "struct ContratoInmobiliario.ContractData[]",
+              "name": "vendedor",
+              "type": "tuple[]"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "comprador",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "vendedor",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "direccion",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "depositoColateral",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "montoMensual",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "cantidadPagosTotales",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "plazoPagoDias",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "fechaUltimoPago",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "contratoActivo",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "compradorIncumplio",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "intermediarioActivo",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "address",
+                  "name": "tokenAddress",
+                  "type": "address"
+                }
+              ],
+              "internalType": "struct ContratoInmobiliario.ContractData[]",
+              "name": "comprador",
+              "type": "tuple[]"
+            }
+          ],
+          "internalType": "struct ContratoInmobiliarioFactory.ContractDataxTipo",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ]
+}
