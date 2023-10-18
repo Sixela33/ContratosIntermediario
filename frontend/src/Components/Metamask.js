@@ -4,12 +4,16 @@ import factoryABI from './FactoryABI.json'
 import inmobiliarioABI from './ContratoInmobiliario.json'
 
 export default function Metamask() {
+    // se usa este obj para firmar transacciones
     const [signer, setSigner] = useState()
-    const [provider, setProvider] = useState()
-    const [contratoFactory, setFactory] = useState()
+
+    // El provider es tipo un signer pero que solo puede leer la blockchain
+    //const [provider, setProvider] = useState()
     const [contratosUsuario, setContratos] = useState()
 
-    const factoryAdress = '0x36725C46a5aA065115A2ee279C84c87F7Ffc69aa'
+    // El factory hay que deployarlo antes de correr el frontend    
+    const factoryAdress = '0x91d2D457Fec9793CD8A625770965E2Aae78493D8'
+    const contratoFactory = new ethers.Contract(factoryAdress, factoryABI.abi)
 
     const coneccion = async () => {
         let providerTemp
@@ -22,13 +26,11 @@ export default function Metamask() {
         } else {
             
             providerTemp = new ethers.BrowserProvider(window.ethereum)
-            setProvider(providerTemp)
+            //setProvider(providerTemp)
             signerTemp = await providerTemp.getSigner();
             setSigner(signerTemp)
             console.log(providerTemp)
             console.log(signerTemp)
-
-            setFactory(new ethers.Contract(factoryAdress, factoryABI.abi))
 
         }
     }
@@ -37,6 +39,16 @@ export default function Metamask() {
         // Asegúrate de que haya un signer válido
         if (signer) {
             try {
+
+                // acá creee un contrato todo con valores preseteados, esto se tendria que hacer con la interfaz calculo
+                /*
+                address _vendedor,
+                uint256 _depositoColateral,
+                uint256 _montoMensual,
+                uint256 _cantidadPagos,
+                uint256 _plazoPagoDias,
+                bool _intermediarioActivo //// Esto no esta muy implementado pero weno, hay que ver bien como lo decidimos hacer
+                */
                 const tx = await contratoFactory.connect(signer).crearContratoETH(
                     '0xf2dCF83256063355B34619582000AdF6894CAFbb',
                     ethers.parseEther('6'),
@@ -55,14 +67,29 @@ export default function Metamask() {
             console.error("No se ha conectado un signer válido.");
         }
     }
-
+    // Consigue los datos de todos los contratos en los que está involuicrada la direccion que está logueada
+    // como comrador y vendedor, de cada contrato se sabe lo siguiente: 
+    /*
+        comprador: comprador,
+        vendedor: vendedor,
+        direccion: address(this),
+        depositoColateral: depositoColateral,
+        montoMensual: montoMensual,
+        cantidadPagosTotales: cantidadPagosTotales,
+        plazoPagoDias: plazoPagoDias,
+        fechaUltimoPago: fechaUltimoPago,
+        contratoActivo: contratoActivo,
+        compradorIncumplio: compradorIncumplio,
+        intermediarioActivo: intermediarioActivo,
+        tokenAddress: tokenAddress
+    */
     const getContratos = async () => {
         if (signer) {
             try {
                 const resultado = await contratoFactory.connect(signer).obtenerDatosDeCOntratos(signer.address)
                 console.log("Contrato creado con éxito.");
                 console.log("recibo: ", resultado)
-
+             
                 setContratos(resultado)
 
             } catch (error) {
@@ -95,7 +122,6 @@ export default function Metamask() {
         }
     }
 
-
     return (
         <div>
             <button onClick={coneccion}>conect</button>
@@ -104,7 +130,9 @@ export default function Metamask() {
             <br></br>
             <button onClick={getContratos}>get Contratos</button>
             <br></br>
+          
             {contratosUsuario && contratosUsuario.map((contratos, index) => {
+                console.log(contratos)
                 return(
                     <>
                         <h1>{index}</h1>
